@@ -98,12 +98,21 @@ def delete_item(request, item_id: int):
 def create_order(request):
     user = User.objects.get(id=request.auth['pk'])
     user_items = user.items.filter(checked=False).select_related('product')
-    if not user_items:
-        return 404, {'user': user,
-                     'discounted_total': 0.0,
-                     'sub_total': 0.0,
-                     'total': 0.0,
-                     }
+        if not user_items:
+        try:
+            order = user.orders.prefetch_related('items').get(checked=False)
+            order.delete()
+            return 404, {'user': user,
+                         'discounted_total': 0.0,
+                         'sub_total': 0.0,
+                         'total': 0.0,
+                         }
+        except Order.DoesNotExist:
+            return 400, {'user': user,
+                         'discounted_total': 0.0,
+                         'sub_total': 0.0,
+                         'total': 0.0,
+                         }
     try:
         order = user.orders.prefetch_related('items').get(checked=False)
         if order:
