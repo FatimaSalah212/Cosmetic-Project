@@ -98,7 +98,7 @@ def delete_item(request, item_id: int):
 def create_order(request):
     user = User.objects.get(id=request.auth['pk'])
     user_items = user.items.filter(checked=False).select_related('product')
-        if not user_items:
+    if not user_items:
         try:
             order = user.orders.prefetch_related('items').get(checked=False)
             order.delete()
